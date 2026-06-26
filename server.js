@@ -1,118 +1,111 @@
 'use strict';
+console.log("🚨 SERVER FILE IS RUNNING");
 
 // ======================================
 // Imports
 // ======================================
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import axios from 'axios';
+import mongoose from 'mongoose';
 
-// Load variables from .env
+// Routes
+import weatherRoutes from './routes/weather.js';
+import favoriteRoutes from './routes/favorites.js';
+
+/*
+Express = server framework
+MongoDB = database
+Mongoose = connector between Node and MongoDB
+*/
+
+// Import model (optional use in other server routes if needed)
+import FavoriteCity from './models/favoriteCity.js';
+
+// Load environment variables
 dotenv.config();
+
+// ======================================
+// Connect MongoDB
+// ======================================
+console.log("MONGO URI:", process.env.MONGO_URI);
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log('MongoDB connection error:', err));
 
 // ======================================
 // Create Server
 // ======================================
-
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+
+// ======================================
+// Middleware
+// ======================================
 
 // Allow React frontend to connect
 app.use(cors());
 
+// Parse incoming JSON requests
+app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log("📡 REQUEST RECEIVED:", req.method, req.url);
+  next();
+});
+/*
+Why express.json() is needed:
+
+| Request Type        | Needs express.json()? |
+|---------------------|----------------------|
+| GET (query params)  | ❌ No                |
+| POST (JSON body)    | ✅ Yes               |
+| PUT/PATCH           | ✅ Yes               |
+*/
+
 // ======================================
 // Home Route
 // ======================================
-
-app.get('/', (request, response) => {
-  response.send('Weather Image API Running');
+app.get('/', (req, res) => {
+  res.send('Weather Image NASA API Running');
 });
 
 // ======================================
-// Weather Route
+// ROUTES
 // ======================================
 
-app.get('/weather', async (request, response) => {
+/*
+Weather routes handled in:
+  routes/weather.js
+*/
+app.use('/weather', weatherRoutes);
 
-  try {
+/*
+Favorites routes handled in:
+  routes/favorites.js
+*/
+app.use('/favorites', favoriteRoutes);
 
-    // Get city from query string
-    const { city } = request.query;
-
-    // Validate city
-    if (!city) {
-      return response.status(400).send({
-        error: 'Please provide a city name.'
-      });
-    }
-
-    // ==================================
-    // OpenWeather API Request
-    // ==================================
-
-    const weatherUrl =
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.WEATHER_API_KEY}&units=imperial`;
-
-    const weatherResponse =
-      await axios.get(weatherUrl);
-
-    const weatherData =
-      weatherResponse.data;
-
-    // Extract weather values
-    const temperature =
-      weatherData.main.temp;
-
-    const humidity =
-      weatherData.main.humidity;
-
-    const description =
-      weatherData.weather[0].description;
-
-    // ==================================
-    // Unsplash API Request
-    // ==================================
-
-    const imageUrl =
-      `https://api.unsplash.com/search/photos?page=1&query=${description}&client_id=${process.env.UNSPLASH_API_KEY}`;
-
-    const imageResponse =
-      await axios.get(imageUrl);
-
-    const image =
-      imageResponse.data.results[0]?.urls?.regular;
-
-    // ==================================
-    // Build Response Object
-    // ==================================
-
-    const result = {
-      city,
-      temperature,
-      humidity,
-      description,
-      image
-    };
-
-    response.send(result);
-
-  } catch (error) {
-
-    console.error(error.message);
-
-    response.status(500).send({
-      error: 'Unable to retrieve weather data.'
-    });
-
-  }
-
-});
 
 // ======================================
 // Start Server
 // ======================================
+
+/*
+server.js responsibilities:
+
+✔ setup express
+✔ connect database
+✔ register routes
+✔ start server
+
+NO business logic should live here.
+*/
+app.get('/debug', (req, res) => {
+  res.send('server works');
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
