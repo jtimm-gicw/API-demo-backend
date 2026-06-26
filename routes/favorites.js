@@ -1,6 +1,7 @@
 // ======================================
 // Favorites Routes
 // ======================================
+console.log('🔥 FAVORITES ROUTER LOADED');
 
 import express from 'express';
 import FavoriteCity from '../models/favoriteCity.js';

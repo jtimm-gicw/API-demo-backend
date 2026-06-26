@@ -103,6 +103,10 @@ server.js responsibilities:
 
 NO business logic should live here.
 */
+app.get('/debug', (req, res) => {
+  res.send('server works');
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
