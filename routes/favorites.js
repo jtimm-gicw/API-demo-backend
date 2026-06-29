@@ -1,6 +1,5 @@
-// ======================================
-// Favorites Routes
-// ======================================
+'use strict';
+
 console.log('🔥 FAVORITES ROUTER LOADED');
 
 import express from 'express';
@@ -16,8 +15,7 @@ router.post('/', async (req, res) => {
   try {
     const favorite = await FavoriteCity.create({
       city: req.body.city,
-      temperature: req.body.temperature,
-      description: req.body.description
+      notes: req.body.notes
     });
 
     res.status(201).send(favorite);
@@ -42,4 +40,28 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+/*
+  DELETE /favorites/:id
+  Removes a favorite city from MongoDB
+*/
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedFavorite = await FavoriteCity.findByIdAndDelete(req.params.id);
+
+    // If nothing was found to delete
+    if (!deletedFavorite) {
+      return res.status(404).send("Favorite not found");
+    }
+
+    res.send({
+      message: "Favorite deleted successfully",
+      deletedFavorite
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error.message);
+  }
+});
 export default router;
