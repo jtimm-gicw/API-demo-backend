@@ -3,8 +3,8 @@
 console.log('🔥 FAVORITES ROUTER LOADED');
 
 import express from 'express';
-import FavoriteCity from '../models/favoriteCity.js';
-
+import FavoriteCity from '../models/FavoriteCity.js';
+// import router from express
 const router = express.Router();
 
 /*
@@ -64,4 +64,33 @@ router.delete('/:id', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+/*
+  PUT /favorites/:id
+  Updates a favorite city
+*/
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedFavorite = await FavoriteCity.findByIdAndUpdate(
+      req.params.id,
+      {
+        notes: req.body.notes
+      },
+      {
+        new: true
+      }
+    );
+
+    if (!updatedFavorite) {
+      return res.status(404).send("Favorite not found");
+    }
+
+    res.send(updatedFavorite);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error.message);
+  }
+});
+
 export default router;

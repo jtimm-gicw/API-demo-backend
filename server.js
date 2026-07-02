@@ -21,7 +21,7 @@ Mongoose = connector between Node and MongoDB
 */
 
 // Import model (optional for direct use, but NOT required in server.js)
-import FavoriteCity from './models/favoriteCity.js';
+import FavoriteCity from './models/FavoriteCity.js';
 
 // Load environment variables
 dotenv.config();
