@@ -1,13 +1,25 @@
 import mongoose from 'mongoose';
-// Crete a schema for favorite cities. Import mongoose here as well
+
+// Create a schema for favorite cities
 
 const favoriteCitySchema = new mongoose.Schema({
 
-  city: String,
+  city: {
+    type: String,
+    required: true
+  },
 
-  temperature: Number,
+  temperature: {
+    type: Number
+  },
 
-  description: String,
+  description: {
+    type: String
+  },
+
+  notes: {
+    type: String
+  },
 
   dateSaved: {
     type: Date,
@@ -16,7 +28,11 @@ const favoriteCitySchema = new mongoose.Schema({
 
 });
 
-const FavoriteCity =
-  mongoose.model('FavoriteCity', favoriteCitySchema);
+
+const FavoriteCity = mongoose.model(
+  'FavoriteCity',
+  favoriteCitySchema
+);
+
 
 export default FavoriteCity;

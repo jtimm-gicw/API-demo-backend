@@ -1,5 +1,7 @@
 'use strict';
 console.log("🚨 SERVER FILE IS RUNNING");
+// STEP 3: Install in bckend terminal npm install express-oauth2-jwt-bearer
+// Go to --> frontend .env file and add REACT_APP_AUTH0_DOMAIN and REACT_APP_AUTH0_CLIENT_ID
 
 // ======================================
 // Imports
@@ -21,13 +23,10 @@ Mongoose = connector between Node and MongoDB
 
 // Import model (optional use in other server routes if needed)
 import FavoriteCity from './models/favoriteCity.js';
-// STEP 16: Import Auth0 JWT middleware
-import verifyUser from "./auth/auth.js";
 
 // Load environment variables
 dotenv.config();
-// JKWS Debugging:
-console.log("JWKS URI:", process.env.JWKS_URI);
+
 // ======================================
 // Connect MongoDB
 // ======================================
@@ -58,6 +57,15 @@ app.use((req, res, next) => {
   console.log("📡 REQUEST RECEIVED:", req.method, req.url);
   next();
 });
+/*
+Why express.json() is needed:
+
+| Request Type        | Needs express.json()? |
+|---------------------|----------------------|
+| GET (query params)  | ❌ No                |
+| POST (JSON body)    | ✅ Yes               |
+| PUT/PATCH           | ✅ Yes               |
+*/
 
 // ======================================
 // Home Route
@@ -80,28 +88,26 @@ app.use('/weather', weatherRoutes);
 Favorites routes handled in:
   routes/favorites.js
 */
-// app.use('/favorites', favoriteRoutes);
-// STEP 17:
-// Protect every Favorites route.
-//
-// Every request to /favorites must include
-// a valid Auth0 JSON Web Token (JWT).
-app.use('/favorites', verifyUser, favoriteRoutes); // Now Go to auth.js to implement the verifyUser middleware
-/* 
-                    ▲
-                    │
-         Auth0 checks the JWT FIRST
-                    │
-            If valid → continue
-            If invalid → return 401 Unauthorized
-*/
+app.use('/favorites', favoriteRoutes);
+
+
 // ======================================
 // Start Server
 // ======================================
 
+/*
+server.js responsibilities:
+
+✔ setup express
+✔ connect database
+✔ register routes
+✔ start server
+
+NO business logic should live here.
+*/
 app.get('/debug', (req, res) => {
   res.send('server works');
-});// debug route to test server is running
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
