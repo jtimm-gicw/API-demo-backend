@@ -28,7 +28,7 @@ const favoriteCitySchema = new mongoose.Schema({
 
 });
 
-
+// Turn the schema into a model and export it
 const FavoriteCity = mongoose.model(
   'FavoriteCity',
   favoriteCitySchema
